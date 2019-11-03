@@ -76,6 +76,7 @@ class SkyRemote:
     def http_json(self, path, headers=None) -> str:
         try:
             response = requests.get(self.REST_BASE_URL.format(self._host, self._jsonport, path), timeout=self.TIMEOUT, headers=headers)
+            print(self.REST_BASE_URL.format(self._host, self._jsonport, path))
             return json.loads(response.content)
         except Exception as err:
             return {}
@@ -95,9 +96,14 @@ class SkyRemote:
             headers = {'User-Agent': SOAP_USER_AGENT}
             resp = requests.get(descriptionUrl, headers=headers, timeout=self.TIMEOUT)
             if resp.status_code == HTTPStatus.OK:
+                # print('hit ' + str(resp.status_code))
+                # print('OK headers: ' + headers)
+                # print(str(self._soapControlURl) + ' text:' + str(resp.text))
+                
                 description = xmltodict.parse(resp.text)
                 services = description['root']['device']['serviceList']['service']
                 playService = next(s for s in services if s['serviceId'] == SKY_PLAY_URN)
+                # print('playService ' + ' ' + str(playService))
                 return SOAP_CONTROL_BASE_URL.format(self._host, playService['controlURL'])
             return None
         except:
@@ -107,10 +113,15 @@ class SkyRemote:
     def _callSkySOAPService(self, method):
         try:
             payload = SOAP_PAYLOAD.format(method)
+            # print('payload ' + payload)
             headers = {'Content-Type': 'text/xml; charset="utf-8"', 'SOAPACTION': SOAP_ACTION.format(method)}
+            # print('headers')
+            # print(headers)
+            # print(self._soapControlURl)
             resp = requests.post(self._soapControlURl, headers=headers, data=payload, verify=False, timeout=self.TIMEOUT)
             if resp.status_code == HTTPStatus.OK:
                 xml = resp.text
+                print ('found it ' + str(self._soapControlURl))
                 return xmltodict.parse(xml)['s:Envelope']['s:Body'][SOAP_RESPONSE.format(method)]
             else:
                 return None
@@ -127,6 +138,7 @@ class SkyRemote:
             return 'Off'
 
     def _getCurrentLiveTVProgramme(self, channel):
+        print(str(channel))
         try:
             result = { 'title': None, 'season': None, 'episode': None, 'channel': channel}
             # self._getEpgData()
@@ -142,6 +154,8 @@ class SkyRemote:
                 result.update({'season': int(programme['episode-num']['#text'][1:3])})
                 result.update({'episode': int(programme['episode-num']['#text'][5:7])})
             
+            print('Program: ' + str(programme))
+            print(str(result))
             return result
         except Exception as err:
             return result
@@ -187,6 +201,7 @@ class SkyRemote:
         if(self.powerStatus() == 'Off'):
            return 'Off'
         response = self._callSkySOAPService(UPNP_GET_TRANSPORT_INFO)
+        # print(str(response))
         if (response is not None):
             state = response[CURRENT_TRANSPORT_STATE]
             if state == self.SKY_STATE_PLAYING:
@@ -247,3 +262,4 @@ class SkyRemote:
                 print("timeout error")
                 break
             
+

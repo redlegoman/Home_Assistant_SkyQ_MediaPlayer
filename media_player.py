@@ -88,6 +88,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         config.get(CONF_DIR),
         'to setup xmltvurl',
         )
+    LOGGER.warning('hit setup platform')
     add_entities([player])
 
 
@@ -121,6 +122,7 @@ class SkyQDevice(MediaPlayerDevice):
 
     @property
     def supported_features(self):
+        LOGGER.warning('hit supported features')
         return SUPPORT_SKYQ
 
     @property
