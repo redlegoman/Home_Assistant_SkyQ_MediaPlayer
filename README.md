@@ -112,3 +112,64 @@ switch:
   switches: !include  skyq<room*>.yaml
 ```
 
+# Additional usage configuration examples
+
+Below this point is a collation of usage examples for forums and user feedback to help ease integration usability
+
+## HACS Mini Media Player
+
+Credit to Matt Barnes for this example, integrating SkyQ into the mini-media-player
+
+See https://community.home-assistant.io/t/custom-component-skyq-media-player/140306/49
+
+### Media Player Configuration:
+```
+  - platform: skyq
+    host: 192.168.0.9
+    name: TestSkyL2
+    sources:
+      CUP: 'channelup'
+      CDOWN: 'channeldown'
+      UP: 'up'
+      DOWN: 'down'
+      LEFT: 'left'
+      RIGHT: 'right'
+```
+
+Lovelace configuration
+
+```
+        - artwork: cover
+        background: >-
+          https://wi-images.condecdn.net/image/m9qkOnPpZnz/crop/1620/f/screen-shot-2015-11-18-at-100440.jpg
+        entity: media_player.testskyl2
+        hide:
+          power_state: false
+          source: true
+          volume: true
+        icon: 'mdi:blank'
+        name: TestSkyL2
+        shortcuts:
+          buttons:
+            - icon: 'mdi:arrow-up'
+              id: CUP
+              type: source
+            - icon: 'mdi:arrow-down'
+              id: CDOWN
+              type: source
+            - icon: 'mdi:arrow-left'
+              id: LEFT
+              type: source
+            - icon: 'mdi:arrow-right'
+              id: RIGHT
+              type: service
+            - icon: 'mdi:arrow-up'
+              id: skyq_chuplounge
+              type: service
+            - icon: 'mdi:arrow-up'
+              id: skyq_chuplounge
+              type: service
+          columns: 6
+        type: 'custom:mini-media-player'
+```
+
