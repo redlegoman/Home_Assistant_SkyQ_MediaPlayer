@@ -136,8 +136,7 @@ See https://community.home-assistant.io/t/custom-component-skyq-media-player/140
       RIGHT: 'right'
 ```
 
-Lovelace configuration
-
+### Lovelace configuration
 ```
         - artwork: cover
         background: >-
