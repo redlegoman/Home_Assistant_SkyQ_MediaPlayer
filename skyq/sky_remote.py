@@ -7,6 +7,7 @@ import xml
 import xmltodict
 from http import HTTPStatus
 
+
 # SOAP/UPnP Constants
 SKY_PLAY_URN = 'urn:nds-com:serviceId:SkyPlay'
 SOAP_ACTION = '"urn:schemas-nds-com:service:SkyPlay:2#{0}"'
@@ -87,26 +88,28 @@ class SkyRemote:
     def _getSoapControlURL(self, descriptionIndex):
         try:
             descriptionUrl = SOAP_DESCRIPTION_BASE_URL.format(self._host, descriptionIndex)
-            print(descriptionUrl)
+            print('called _getSoapControlURL with: ' + descriptionUrl)
             headers = {'User-Agent': SOAP_USER_AGENT}
             resp = requests.get(descriptionUrl, headers=headers, timeout=self.TIMEOUT)
             if resp.status_code == HTTPStatus.OK:
-                # print('hit ' + str(resp.status_code))
-                # print('OK headers: ' + headers)
-                # print(str(self._soapControlURl) + ' text:' + str(resp.text))
+                print('Resp Status ' + str(resp.status_code))
+                print('Headers: ' + str(headers))
+                # print('Response text:' + str(resp.text))
                 
                 description = xmltodict.parse(resp.text)
                 services = description['root']['device']['serviceList']['service']
                 playService = next(s for s in services if s['serviceId'] == SKY_PLAY_URN)
-                # print('playService ' + ' ' + str(playService))
+                print('playService: ' + str(playService))
+                print('SOAP URL:' + SOAP_CONTROL_BASE_URL.format(self._host, playService['controlURL']))
                 return SOAP_CONTROL_BASE_URL.format(self._host, playService['controlURL'])
             return None
         except:
-            print ("soap error")
+            print ("_getSoapControlURL soap error")
             return None
 		    
     def _callSkySOAPService(self, method):
         try:
+            print('_callSkySOAPService')
             payload = SOAP_PAYLOAD.format(method)
             # print('payload ' + payload)
             headers = {'Content-Type': 'text/xml; charset="utf-8"', 'SOAPACTION': SOAP_ACTION.format(method)}
@@ -116,7 +119,6 @@ class SkyRemote:
             resp = requests.post(self._soapControlURl, headers=headers, data=payload, verify=False, timeout=self.TIMEOUT)
             if resp.status_code == HTTPStatus.OK:
                 xml = resp.text
-                print ('found it ' + str(self._soapControlURl))
                 return xmltodict.parse(xml)['s:Envelope']['s:Body'][SOAP_RESPONSE.format(method)]
             else:
                 return None
