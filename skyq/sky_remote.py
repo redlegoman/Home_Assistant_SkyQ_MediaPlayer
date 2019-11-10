@@ -7,11 +7,6 @@ import xml
 import xmltodict
 from http import HTTPStatus
 
-SKY_STATE_NO_MEDIA_PRESENT = 'NO_MEDIA_PRESENT'
-SKY_STATE_PLAYING = 'PLAYING'
-SKY_STATE_PAUSED = 'PAUSED_PLAYBACK'
-SKY_STATE_OFF = 'OFF'
-
 # SOAP/UPnP Constants
 SKY_PLAY_URN = 'urn:nds-com:serviceId:SkyPlay'
 SOAP_ACTION = '"urn:schemas-nds-com:service:SkyPlay:2#{0}"'
@@ -141,21 +136,6 @@ class SkyRemote:
         print(str(channel))
         try:
             result = { 'title': None, 'season': None, 'episode': None, 'channel': channel}
-            # self._getEpgData()
-            queryChannel = channel
-            if queryChannel.endswith(" HD"):
-                queryChannel = queryChannel[:-3]
-            channelNode = next(c for c in self.epgData['tv']['channel'] if c['display-name'] == queryChannel)
-            channelId = channelNode['@id']
-            now = pytz.utc.localize(datetime.now())
-            programme = next(p for p in self.epgData['tv']['programme'] if p["@channel"] == channelId and datetime.strptime(p["@start"], "%Y%m%d%H%M%S %z").astimezone(pytz.utc) < now and datetime.strptime(p["@stop"], "%Y%m%d%H%M%S %z").astimezone(pytz.utc) > now)
-            result.update({'title': programme['title']['#text']})
-            if 'episode-num' in programme:
-                result.update({'season': int(programme['episode-num']['#text'][1:3])})
-                result.update({'episode': int(programme['episode-num']['#text'][5:7])})
-            
-            print('Program: ' + str(programme))
-            print(str(result))
             return result
         except Exception as err:
             return result
